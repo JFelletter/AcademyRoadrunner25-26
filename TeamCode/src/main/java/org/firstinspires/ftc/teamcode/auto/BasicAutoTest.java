@@ -23,13 +23,14 @@ public class BasicAutoTest extends LinearOpMode {
         //Define any stored poses (X/Y coordinates with heading)
         Pose2d initialPose = new Pose2d(0, 0, Math.toRadians(90));
 
+
         //Define any stored vectors (X/Y coordinate)
 
         //Initialize systems
 
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         Light = hardwareMap.get(Servo.class, "Light");
-
+        Pose2d currentPose = drive.localizer.getPose();
         //Define trajectories
         //Trajectories must be given a start pose (not vector)
         TrajectoryActionBuilder tab1 = drive.actionBuilder(initialPose)
