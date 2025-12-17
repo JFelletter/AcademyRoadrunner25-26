@@ -12,10 +12,9 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.Servo;
+
 
 import org.firstinspires.ftc.teamcode.setup.MecanumDrive;
-import org.firstinspires.ftc.teamcode.testactions.SetServoPositionAction;
 
 @Config
 @Autonomous(name = "Basic Auto Test", group = "Autonomous")
@@ -23,44 +22,49 @@ public class BasicAutoTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        //Define any stored poses (X/Y coordinates with heading)
-        Pose2d initialPose = new Pose2d(0, 0, Math.toRadians(90));
+        //Define Poses
+        Pose2d initialPose = new Pose2d(63.75,-17, Math.toRadians(180));
+        Pose2d middlePose = new Pose2d(-23, -23, Math.toRadians(225));
+        Pose2d shootingPose = new Pose2d( -36, -36, Math.toRadians(225));
+        Pose2d intake1Pose = new Pose2d( -12, -31, Math.toRadians(270));
+        Pose2d finished1Pose = new Pose2d( -12, -42, Math.toRadians(270));
+        Pose2d intake2Pose = new Pose2d( 12, -31, Math.toRadians(270));
+        Pose2d finished2Pose = new Pose2d( 12, -42, Math.toRadians(270));
+        Pose2d intake3Pose = new Pose2d( 36, -31, Math.toRadians(270));
+        Pose2d finished3Pose = new Pose2d( 36, -42, Math.toRadians(270));
+
         //Define any stored vectors (X/Y coordinate)
 
         //Initialize hardware systems
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
-        Servo Light = (hardwareMap.get(Servo.class, "Light"));
 
-        //Define trajectories
-        //Trajectories must be given a start pose (not vector)
         TrajectoryActionBuilder tab1 = drive.actionBuilder(initialPose)
-                .waitSeconds(3)
-                .strafeTo(new Vector2d(12, 0))
-                .waitSeconds(3)
-                .strafeTo(new Vector2d(12, 12))
-                .waitSeconds(3)
-                .strafeTo(new Vector2d(5, 5))
-                .waitSeconds(3);
-
-
-        TrajectoryActionBuilder tab2 = tab1.endTrajectory().fresh()
-                .waitSeconds(3)
-                .strafeTo(new Vector2d(12, 0))
-                .waitSeconds(3)
-                .strafeTo(new Vector2d(12, 12))
-                .waitSeconds(3)
-                .strafeTo(new Vector2d(0, 0))
-                .waitSeconds(3);
+                //Initial Shot
+                .strafeToSplineHeading(middlePose.position, middlePose.heading)
+                .strafeToSplineHeading(shootingPose.position, shootingPose.heading)
+                .waitSeconds(1)
+                // Intake 1 and shoot
+                .strafeToSplineHeading(intake1Pose.position, intake1Pose.heading)
+                .waitSeconds(1)
+                .lineToY(finished1Pose.position.y)
+                .strafeToSplineHeading(shootingPose.position, shootingPose.heading)
+                .waitSeconds(1)
+                //Intake 2 and shoot
+                .strafeToSplineHeading(intake2Pose.position, intake2Pose.heading)
+                .waitSeconds(1)
+                .lineToY(finished2Pose.position.y)
+                .strafeToSplineHeading(shootingPose.position, shootingPose.heading)
+                .waitSeconds(1)
+                //Intake 3 and shoot
+                .strafeToSplineHeading(intake3Pose.position, intake3Pose.heading)
+                .waitSeconds(1)
+                .lineToY(finished3Pose.position.y)
+                .strafeToSplineHeading(shootingPose.position, shootingPose.heading)
+                .waitSeconds(1);
 
     // actions that need to happen on init; for instance, a claw tightening.
         //Builds out trajectories
         Action tab1Built = tab1.build();
-        Action tab2Built = tab2.build();
-
-        // Build out light colors
-        Action lightRed = new SetServoPositionAction(Light, 0.227);
-        Action lightBlue =new SetServoPositionAction(Light, 0.611);
-        Action lightWhite = new SetServoPositionAction(Light, 1.0);
 
 
 
@@ -72,12 +76,7 @@ public class BasicAutoTest extends LinearOpMode {
         //Runs a sequence of actions.
         Actions.runBlocking(
                 new SequentialAction(
-                        lightWhite,
-                        new SleepAction(0.25),
-                        tab1Built,
-                        lightBlue,
-                        tab2Built,
-                        lightRed
+                        tab1Built
                 )
         );
     }
